@@ -345,6 +345,12 @@ def add_user_install_bins_to_path():
         os.environ['PATH'] = os.pathsep.join(parts)
 
 add_user_install_bins_to_path()
+try:
+    user_site = site.getusersitepackages()
+    if user_site and os.path.isdir(user_site):
+        site.addsitedir(user_site)
+except Exception:
+    pass
 
 def mod_status(n):
     spec = importlib.util.find_spec(n)
