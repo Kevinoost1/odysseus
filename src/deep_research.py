@@ -379,7 +379,7 @@ class DeepResearcher:
     # LLM helper
     # ------------------------------------------------------------------
     async def _llm(self, messages: List[Dict], temperature: float = 0.3,
-                   max_tokens: int = 4096, timeout: int = 60) -> str:
+                   max_tokens: int = 4096, timeout: int = 60, strip_thinking_output: bool=True) -> str:
         """Call the LLM asynchronously and strip thinking tags."""
         from src.llm_core import llm_call_async
         response = await llm_call_async(
@@ -391,7 +391,9 @@ class DeepResearcher:
             headers=self.llm_headers,
             timeout=timeout,
         )
-        return strip_thinking(response)
+        if strip_thinking_output:
+            return strip_thinking(response)
+        return response or ""
 
     # ------------------------------------------------------------------
     # PLAN: create research strategy
@@ -405,6 +407,7 @@ class DeepResearcher:
                 temperature=0.3,
                 max_tokens=1024,
                 timeout=getattr(self, "planning_timeout", 90),
+                strip_thinking_output=False
             )
             # Try to parse as JSON for structured plan
             parsed = self._parse_json_object(response)
@@ -489,6 +492,7 @@ class DeepResearcher:
                 temperature=0.5,
                 max_tokens=4096,
                 timeout=getattr(self, "query_timeout", 120),
+                strip_thinking_output=False
             )
             queries = self._parse_json_array(response)
             # Deduplicate
