@@ -96,6 +96,10 @@ repair_bind_mount_ownership() {
 # Repair image-owned writable paths without walking into bind-mounted host
 # trees, then repair the app-owned mount roots separately.
 repair_app_tree_ownership
+
+mkdir -p /app/.cache
+chown "$PUID:$PGID" /app/.cache 2>/dev/null || true
+
 for dir in /app/data /app/logs /app/.ssh /app/.cache/huggingface /app/.local; do
     repair_bind_mount_ownership "$dir"
 done
